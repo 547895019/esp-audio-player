@@ -32,13 +32,15 @@ bool is_wav(FILE *fp, wav_instance *pInstance) {
         if(bytes_read != sizeof(wav_subchunk_header_t)) {
             return false;
         }
-
         if(memcmp(subchunk.SubchunkID, "data", 4) == 0)
         {
             break;
-        } else {
+        } else if(memcmp(subchunk.SubchunkID, "LIST", 4) == 0)
+        {
             // advance beyond this subchunk, it could be a 'LIST' chunk with file info or some other unhandled subchunk
             fseek(fp, subchunk.SubchunkSize, SEEK_CUR);
+        } else {
+            fseek(fp, -1*(sizeof(wav_subchunk_header_t)-1), SEEK_CUR);
         }
     }
 
